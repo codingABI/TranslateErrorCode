@@ -20,17 +20,15 @@ This project is licensed under the terms of the CC0 [Copyright (c) 2024 codingAB
 
 ### Statistics
 
-| From  | Number of supported error codes |
-| ------------- | -------------: |
-| Win32/HRESULT  | 12990  |
-| NTSTATUS  | 2860  |
-| Windows Update  | 474  |
-| LDAP  | 63  |
-| StopCode/BugCheck  | 377  |
+| From  | Number of supported error codes | Source |
+| ------------- | -------------: | ---------- | 
+| Win32/HRESULT  | 12990  | Counted on a Windows 11 23H2 computer |
+| NTSTATUS  | 2860  | Counted on a Windows 11 23H2 computer |
+| Windows Update  | 474  | wuerror.h (From Windows SDK 10.0.26100.1) |
+| LDAP  | 63  | Winldap.h (From Windows SDK 10.0.26100.1) |
+| StopCode/BugCheck  | 377  | https://learn.microsoft.com/de-de/windows-hardware/drivers/debugger/bug-check-code-reference2 |
 
 Tobal number: ~16700
-
-Win32/HRESULT and NTSTATUS was counted on a Windows 11 23H2 computer.
 
 ### External References
 
