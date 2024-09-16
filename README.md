@@ -18,7 +18,7 @@ This project is licensed under the terms of the CC0 [Copyright (c) 2024 codingAB
 
 ## Appendix
 
-### Statistics
+### Statistics for supported error codes
 
 | From  | Number of supported error codes | Source |
 | ------------- | -------------: | ---------- | 
