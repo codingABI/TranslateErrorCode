@@ -30,7 +30,7 @@ This project is licensed under the terms of the CC0 [Copyright (c) 2024 codingAB
 
 Tobal number: ~16700
 
-### External References
+### External references
 
 https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-erref
 
