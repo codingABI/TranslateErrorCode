@@ -1,0 +1,5 @@
+internal
+.vs
+*.aps
+*.vcxproj.user
+sign.cmd
