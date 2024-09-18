@@ -40,7 +40,7 @@ https://learn.microsoft.com/en-us/windows-hardware/drivers/debugger/bug-check-co
 
 Visual Studio 2022
 
-The Code works without special frameworks and uses only the Win32 API.
+The C++ code works without special frameworks and uses only the Win32 API.
 
 ### Digitally signed binaries
 The compiled EXE files are digitally signed with my public key 
