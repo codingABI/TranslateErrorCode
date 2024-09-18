@@ -1,5 +1,5 @@
 # TranslateErrorCode
-Graphical windows tool to translate a numeric standard error code to the corresponding text.
+A Windows GUI tool to translate a numeric standard error code to the corresponding text.
 
 It supports error codes from
 - Win32/HRESULT
