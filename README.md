@@ -7,6 +7,7 @@ It supports error codes from
 - Windows Update
 - LDAP
 - StopCode/BugCheck 
+- Wininet
 
 ![Screenshot of main window](assets/images/TranslateErrorCode.png)
 
@@ -27,8 +28,8 @@ This project is licensed under the terms of the CC0 [Copyright (c) 2024 codingAB
 | Windows Update  | 474  | wuerror.h (From Windows SDK 10.0.26100.1) |
 | LDAP  | 63  | Winldap.h (From Windows SDK 10.0.26100.1) |
 | StopCode/BugCheck  | 377  | https://learn.microsoft.com/en-US/windows-hardware/drivers/debugger/bug-check-code-reference2 |
-
-Tobal number: ~16700
+| Wininet  | 101  | wininet.h (From Windows SDK 10.0.26100.1) |
+Tobal number: ~16800
 
 ### External references
 

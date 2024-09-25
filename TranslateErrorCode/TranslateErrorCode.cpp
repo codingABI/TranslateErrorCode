@@ -6,7 +6,8 @@
              - NTSTATUS
              - Windows Update
              - LDAP
-             - BugCheck/StopCode 
+             - BugCheck/StopCode
+             - Wininet
              to the corresponding text (if exists)
 
              Program should run on Windows 11/10/8.1/2022/2019/2016/2012R2
@@ -25,6 +26,7 @@
   History:
   20240910, Initial version
   20240916, Store last input in registry
+  20240925, Add wininet messages
 
 ===================================================================+*/
 
@@ -46,6 +48,8 @@
 std::map<int, std::wstring> g_mWU;
 std::map<int, std::wstring> g_mLDAP;
 std::map<int, std::wstring> g_mBugCheck;
+std::map<int, std::wstring> g_mWininet;
+
 HINSTANCE g_hInst;
 HBRUSH g_hbrOutputBackground = NULL;
 
@@ -480,6 +484,162 @@ void setBugCheckCodes() {
 
 }
 
+/*F+F+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+  Function: setLDAPCodes
+
+  Summary:  Fill map with error code definitions for LDAP
+            Based on C:\Program Files (x86)\Windows Kits\10\Include\10.0.26100.0\um\wininet.h
+
+            Q&D:
+            Search #define *(\S*)\s*\((.*)\)$
+            Replace g_mWininet[\2] = L"\1";
+
+  Args:
+
+  Returns:
+
+-----------------------------------------------------------------F-F*/
+void setWininetCodes() {
+
+    #define INTERNET_ERROR_BASE 12000
+
+    g_mWininet[INTERNET_ERROR_BASE + 1] = L"ERROR_INTERNET_OUT_OF_HANDLES";
+    g_mWininet[INTERNET_ERROR_BASE + 2] = L"ERROR_INTERNET_TIMEOUT";
+    g_mWininet[INTERNET_ERROR_BASE + 3] = L"ERROR_INTERNET_EXTENDED_ERROR";
+    g_mWininet[INTERNET_ERROR_BASE + 4] = L"ERROR_INTERNET_INTERNAL_ERROR";
+    g_mWininet[INTERNET_ERROR_BASE + 5] = L"ERROR_INTERNET_INVALID_URL";
+    g_mWininet[INTERNET_ERROR_BASE + 6] = L"ERROR_INTERNET_UNRECOGNIZED_SCHEME";
+    g_mWininet[INTERNET_ERROR_BASE + 7] = L"ERROR_INTERNET_NAME_NOT_RESOLVED";
+    g_mWininet[INTERNET_ERROR_BASE + 8] = L"ERROR_INTERNET_PROTOCOL_NOT_FOUND";
+    g_mWininet[INTERNET_ERROR_BASE + 9] = L"ERROR_INTERNET_INVALID_OPTION";
+    g_mWininet[INTERNET_ERROR_BASE + 10] = L"ERROR_INTERNET_BAD_OPTION_LENGTH";
+    g_mWininet[INTERNET_ERROR_BASE + 11] = L"ERROR_INTERNET_OPTION_NOT_SETTABLE";
+    g_mWininet[INTERNET_ERROR_BASE + 12] = L"ERROR_INTERNET_SHUTDOWN";
+    g_mWininet[INTERNET_ERROR_BASE + 13] = L"ERROR_INTERNET_INCORRECT_USER_NAME";
+    g_mWininet[INTERNET_ERROR_BASE + 14] = L"ERROR_INTERNET_INCORRECT_PASSWORD";
+    g_mWininet[INTERNET_ERROR_BASE + 15] = L"ERROR_INTERNET_LOGIN_FAILURE";
+    g_mWininet[INTERNET_ERROR_BASE + 16] = L"ERROR_INTERNET_INVALID_OPERATION";
+    g_mWininet[INTERNET_ERROR_BASE + 17] = L"ERROR_INTERNET_OPERATION_CANCELLED";
+    g_mWininet[INTERNET_ERROR_BASE + 18] = L"ERROR_INTERNET_INCORRECT_HANDLE_TYPE";
+    g_mWininet[INTERNET_ERROR_BASE + 19] = L"ERROR_INTERNET_INCORRECT_HANDLE_STATE";
+    g_mWininet[INTERNET_ERROR_BASE + 20] = L"ERROR_INTERNET_NOT_PROXY_REQUEST";
+    g_mWininet[INTERNET_ERROR_BASE + 21] = L"ERROR_INTERNET_REGISTRY_VALUE_NOT_FOUND";
+    g_mWininet[INTERNET_ERROR_BASE + 22] = L"ERROR_INTERNET_BAD_REGISTRY_PARAMETER";
+    g_mWininet[INTERNET_ERROR_BASE + 23] = L"ERROR_INTERNET_NO_DIRECT_ACCESS";
+    g_mWininet[INTERNET_ERROR_BASE + 24] = L"ERROR_INTERNET_NO_CONTEXT";
+    g_mWininet[INTERNET_ERROR_BASE + 25] = L"ERROR_INTERNET_NO_CALLBACK";
+    g_mWininet[INTERNET_ERROR_BASE + 26] = L"ERROR_INTERNET_REQUEST_PENDING";
+    g_mWininet[INTERNET_ERROR_BASE + 27] = L"ERROR_INTERNET_INCORRECT_FORMAT";
+    g_mWininet[INTERNET_ERROR_BASE + 28] = L"ERROR_INTERNET_ITEM_NOT_FOUND";
+    g_mWininet[INTERNET_ERROR_BASE + 29] = L"ERROR_INTERNET_CANNOT_CONNECT";
+    g_mWininet[INTERNET_ERROR_BASE + 30] = L"ERROR_INTERNET_CONNECTION_ABORTED";
+    g_mWininet[INTERNET_ERROR_BASE + 31] = L"ERROR_INTERNET_CONNECTION_RESET";
+    g_mWininet[INTERNET_ERROR_BASE + 32] = L"ERROR_INTERNET_FORCE_RETRY";
+    g_mWininet[INTERNET_ERROR_BASE + 33] = L"ERROR_INTERNET_INVALID_PROXY_REQUEST";
+    g_mWininet[INTERNET_ERROR_BASE + 34] = L"ERROR_INTERNET_NEED_UI";
+
+    g_mWininet[INTERNET_ERROR_BASE + 36] = L"ERROR_INTERNET_HANDLE_EXISTS";
+    g_mWininet[INTERNET_ERROR_BASE + 37] = L"ERROR_INTERNET_SEC_CERT_DATE_INVALID";
+    g_mWininet[INTERNET_ERROR_BASE + 38] = L"ERROR_INTERNET_SEC_CERT_CN_INVALID";
+    g_mWininet[INTERNET_ERROR_BASE + 39] = L"ERROR_INTERNET_HTTP_TO_HTTPS_ON_REDIR";
+    g_mWininet[INTERNET_ERROR_BASE + 40] = L"ERROR_INTERNET_HTTPS_TO_HTTP_ON_REDIR";
+    g_mWininet[INTERNET_ERROR_BASE + 41] = L"ERROR_INTERNET_MIXED_SECURITY";
+    g_mWininet[INTERNET_ERROR_BASE + 42] = L"ERROR_INTERNET_CHG_POST_IS_NON_SECURE";
+    g_mWininet[INTERNET_ERROR_BASE + 43] = L"ERROR_INTERNET_POST_IS_NON_SECURE";
+    g_mWininet[INTERNET_ERROR_BASE + 44] = L"ERROR_INTERNET_CLIENT_AUTH_CERT_NEEDED";
+    g_mWininet[INTERNET_ERROR_BASE + 45] = L"ERROR_INTERNET_INVALID_CA";
+    g_mWininet[INTERNET_ERROR_BASE + 46] = L"ERROR_INTERNET_CLIENT_AUTH_NOT_SETUP";
+    g_mWininet[INTERNET_ERROR_BASE + 47] = L"ERROR_INTERNET_ASYNC_THREAD_FAILED";
+    g_mWininet[INTERNET_ERROR_BASE + 48] = L"ERROR_INTERNET_REDIRECT_SCHEME_CHANGE";
+    g_mWininet[INTERNET_ERROR_BASE + 49] = L"ERROR_INTERNET_DIALOG_PENDING";
+    g_mWininet[INTERNET_ERROR_BASE + 50] = L"ERROR_INTERNET_RETRY_DIALOG";
+    g_mWininet[INTERNET_ERROR_BASE + 52] = L"ERROR_INTERNET_HTTPS_HTTP_SUBMIT_REDIR";
+    g_mWininet[INTERNET_ERROR_BASE + 53] = L"ERROR_INTERNET_INSERT_CDROM";
+    g_mWininet[INTERNET_ERROR_BASE + 54] = L"ERROR_INTERNET_FORTEZZA_LOGIN_NEEDED";
+    g_mWininet[INTERNET_ERROR_BASE + 55] = L"ERROR_INTERNET_SEC_CERT_ERRORS";
+    g_mWininet[INTERNET_ERROR_BASE + 56] = L"ERROR_INTERNET_SEC_CERT_NO_REV";
+    g_mWininet[INTERNET_ERROR_BASE + 57] = L"ERROR_INTERNET_SEC_CERT_REV_FAILED";
+
+
+    g_mWininet[INTERNET_ERROR_BASE + 60] = L"ERROR_HTTP_HSTS_REDIRECT_REQUIRED";
+
+
+    g_mWininet[INTERNET_ERROR_BASE + 62] = L"ERROR_INTERNET_SEC_CERT_WEAK_SIGNATURE";
+
+
+    //
+    // FTP API errors
+    //
+
+    g_mWininet[INTERNET_ERROR_BASE + 110] = L"ERROR_FTP_TRANSFER_IN_PROGRESS";
+    g_mWininet[INTERNET_ERROR_BASE + 111] = L"ERROR_FTP_DROPPED";
+    g_mWininet[INTERNET_ERROR_BASE + 112] = L"ERROR_FTP_NO_PASSIVE_MODE";
+
+    //
+    // gopher API errors
+    //
+
+    g_mWininet[INTERNET_ERROR_BASE + 130] = L"ERROR_GOPHER_PROTOCOL_ERROR";
+    g_mWininet[INTERNET_ERROR_BASE + 131] = L"ERROR_GOPHER_NOT_FILE";
+    g_mWininet[INTERNET_ERROR_BASE + 132] = L"ERROR_GOPHER_DATA_ERROR";
+    g_mWininet[INTERNET_ERROR_BASE + 133] = L"ERROR_GOPHER_END_OF_DATA";
+    g_mWininet[INTERNET_ERROR_BASE + 134] = L"ERROR_GOPHER_INVALID_LOCATOR";
+    g_mWininet[INTERNET_ERROR_BASE + 135] = L"ERROR_GOPHER_INCORRECT_LOCATOR_TYPE";
+    g_mWininet[INTERNET_ERROR_BASE + 136] = L"ERROR_GOPHER_NOT_GOPHER_PLUS";
+    g_mWininet[INTERNET_ERROR_BASE + 137] = L"ERROR_GOPHER_ATTRIBUTE_NOT_FOUND";
+    g_mWininet[INTERNET_ERROR_BASE + 138] = L"ERROR_GOPHER_UNKNOWN_LOCATOR";
+
+    //
+    // HTTP API errors
+    //
+
+    g_mWininet[INTERNET_ERROR_BASE + 150] = L"ERROR_HTTP_HEADER_NOT_FOUND";
+    g_mWininet[INTERNET_ERROR_BASE + 151] = L"ERROR_HTTP_DOWNLEVEL_SERVER";
+    g_mWininet[INTERNET_ERROR_BASE + 152] = L"ERROR_HTTP_INVALID_SERVER_RESPONSE";
+    g_mWininet[INTERNET_ERROR_BASE + 153] = L"ERROR_HTTP_INVALID_HEADER";
+    g_mWininet[INTERNET_ERROR_BASE + 154] = L"ERROR_HTTP_INVALID_QUERY_REQUEST";
+    g_mWininet[INTERNET_ERROR_BASE + 155] = L"ERROR_HTTP_HEADER_ALREADY_EXISTS";
+    g_mWininet[INTERNET_ERROR_BASE + 156] = L"ERROR_HTTP_REDIRECT_FAILED";
+    g_mWininet[INTERNET_ERROR_BASE + 160] = L"ERROR_HTTP_NOT_REDIRECTED";
+    g_mWininet[INTERNET_ERROR_BASE + 161] = L"ERROR_HTTP_COOKIE_NEEDS_CONFIRMATION";
+    g_mWininet[INTERNET_ERROR_BASE + 162] = L"ERROR_HTTP_COOKIE_DECLINED";
+    g_mWininet[INTERNET_ERROR_BASE + 168] = L"ERROR_HTTP_REDIRECT_NEEDS_CONFIRMATION";
+
+    //
+    // additional Internet API error codes
+    //
+
+    g_mWininet[INTERNET_ERROR_BASE + 157] = L"ERROR_INTERNET_SECURITY_CHANNEL_ERROR";
+    g_mWininet[INTERNET_ERROR_BASE + 158] = L"ERROR_INTERNET_UNABLE_TO_CACHE_FILE";
+    g_mWininet[INTERNET_ERROR_BASE + 159] = L"ERROR_INTERNET_TCPIP_NOT_INSTALLED";
+    g_mWininet[INTERNET_ERROR_BASE + 163] = L"ERROR_INTERNET_DISCONNECTED";
+    g_mWininet[INTERNET_ERROR_BASE + 164] = L"ERROR_INTERNET_SERVER_UNREACHABLE";
+    g_mWininet[INTERNET_ERROR_BASE + 165] = L"ERROR_INTERNET_PROXY_SERVER_UNREACHABLE";
+
+    g_mWininet[INTERNET_ERROR_BASE + 166] = L"ERROR_INTERNET_BAD_AUTO_PROXY_SCRIPT";
+    g_mWininet[INTERNET_ERROR_BASE + 167] = L"ERROR_INTERNET_UNABLE_TO_DOWNLOAD_SCRIPT";
+    g_mWininet[INTERNET_ERROR_BASE + 169] = L"ERROR_INTERNET_SEC_INVALID_CERT";
+    g_mWininet[INTERNET_ERROR_BASE + 170] = L"ERROR_INTERNET_SEC_CERT_REVOKED";
+
+    // InternetAutodial specific errors
+
+    g_mWininet[INTERNET_ERROR_BASE + 171] = L"ERROR_INTERNET_FAILED_DUETOSECURITYCHECK";
+    g_mWininet[INTERNET_ERROR_BASE + 172] = L"ERROR_INTERNET_NOT_INITIALIZED";
+    g_mWininet[INTERNET_ERROR_BASE + 173] = L"ERROR_INTERNET_NEED_MSN_SSPI_PKG";
+    g_mWininet[INTERNET_ERROR_BASE + 174] = L"ERROR_INTERNET_LOGIN_FAILURE_DISPLAY_ENTITY_BODY";
+
+    // Decoding/Decompression specific errors
+
+    g_mWininet[INTERNET_ERROR_BASE + 175] = L"ERROR_INTERNET_DECODING_FAILED";
+
+    g_mWininet[INTERNET_ERROR_BASE + 187] = L"ERROR_INTERNET_CLIENT_AUTH_CERT_NEEDED_PROXY";
+    g_mWininet[INTERNET_ERROR_BASE + 188] = L"ERROR_INTERNET_SECURE_FAILURE_PROXY";
+    g_mWininet[INTERNET_ERROR_BASE + 190] = L"ERROR_INTERNET_HTTP_PROTOCOL_MISMATCH";
+    g_mWininet[INTERNET_ERROR_BASE + 191] = L"ERROR_INTERNET_GLOBAL_CALLBACK_FAILED";
+    g_mWininet[INTERNET_ERROR_BASE + 192] = L"ERROR_INTERNET_FEATURE_DISABLED";
+
+    g_mWininet[INTERNET_ERROR_BASE + 192] = L"INTERNET_ERROR_LAST";
+}
 
 /*F+F+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
   Function: setLDAPCodes
@@ -1233,6 +1393,9 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
     // Create list of BugCheck error codes
     setBugCheckCodes();
 
+    // Create list of wininet error codes
+    setWininetCodes();
+
     // Startr dialog
     return (int) DialogBox(hInstance, MAKEINTRESOURCE(IDD_MAIN), NULL, WndProcMainDialog);
 }
@@ -1473,6 +1636,15 @@ INT_PTR CALLBACK WndProcMainDialog(HWND hDlg, UINT message, WPARAM wParam, LPARA
                             if (g_mBugCheck.count(iValue) > 0) { // Append text from BugCheck message, when error code was found in the messages
                                 sMessage.append(L"\r\n\r\nStopCode/BugCheck: ").append(g_mBugCheck[iValue]);
                             }
+                            // Get message for wininet codes
+                            if (g_mWininet.count(iValue) > 0) { // Append text from wininet message, when error code was found in the messages
+                                sMessage.append(L"\r\n\r\nWininet: ").append(g_mWininet[iValue]);
+                            }
+                            // Sometimes with an offset of 0x80070000
+                            if ((iValue > 0x80070000) && (g_mWininet.count(iValue - 0x80070000) > 0)) { // Append text from wininet message, when error code was found in the messages
+                                sMessage.append(L"\r\n\r\nWininet: ").append(g_mWininet[iValue - 0x80070000]);
+                            }
+
                             HWND hOutput = GetDlgItem(hDlg, IDC_OUTPUT);
                             if (hOutput != NULL) {
                                 SetWindowText(hOutput, sMessage.c_str()); // Set output text
