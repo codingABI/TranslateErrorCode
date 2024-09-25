@@ -29,6 +29,7 @@ This project is licensed under the terms of the CC0 [Copyright (c) 2024 codingAB
 | LDAP  | 63  | Winldap.h (From Windows SDK 10.0.26100.1) |
 | StopCode/BugCheck  | 377  | https://learn.microsoft.com/en-US/windows-hardware/drivers/debugger/bug-check-code-reference2 |
 | Wininet  | 100  | wininet.h (From Windows SDK 10.0.26100.1) |
+
 Tobal number: ~16800
 
 ### External references
