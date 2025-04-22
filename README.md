@@ -8,6 +8,7 @@ It supports error codes from
 - LDAP
 - StopCode/BugCheck 
 - Wininet
+- WBEM
 
 ![Screenshot of main window](assets/images/TranslateErrorCode.png)
 
@@ -29,8 +30,10 @@ This project is licensed under the terms of the CC0 [Copyright (c) 2024 codingAB
 | LDAP  | 63  | Winldap.h (From Windows SDK 10.0.26100.1) |
 | StopCode/BugCheck  | 377  | https://learn.microsoft.com/en-US/windows-hardware/drivers/debugger/bug-check-code-reference2 |
 | Wininet  | 100  | wininet.h (From Windows SDK 10.0.26100.1) |
+| WBEM  | 68  | https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-wmi/a2899649-a5a3-4b13-9ffa-d8394dcdac63 |
 
-Tobal number: ~16800
+
+Tobal number: ~16900
 
 ### External references
 

@@ -1,19 +1,20 @@
 ﻿/*+===================================================================
   File:      TranslateErrorCode.cpp
 
-  Summary:   Translates the numeric standard error codes from 
+  Summary:   Translates the numeric standard error codes from
              - Win32/HRESULT
              - NTSTATUS
              - Windows Update
              - LDAP
              - BugCheck/StopCode
              - Wininet
+             - WBEM
              to the corresponding text (if exists)
 
              Program should run on Windows 11/10/8.1/2022/2019/2016/2012R2
 
   License: CC0
-  Copyright (c) 2024 codingABI
+  Copyright (c) 2024-2025 codingABI
 
   Icon for the app: Modified icon "zoom" from Game icon pack by Kenney Vleugels (www.kenney.nl), https://kenney.nl/assets/game-icons, CC0
 
@@ -27,6 +28,7 @@
   20240910, Initial version
   20240916, Store last input in registry
   20240925, Add wininet messages
+  20250422, Add WBEM messages
 
 ===================================================================+*/
 
@@ -49,6 +51,7 @@ std::map<int, std::wstring> g_mWU;
 std::map<int, std::wstring> g_mLDAP;
 std::map<int, std::wstring> g_mBugCheck;
 std::map<int, std::wstring> g_mWininet;
+std::map<int, std::wstring> g_mWBEM;
 
 HINSTANCE g_hInst;
 HBRUSH g_hbrOutputBackground = NULL;
@@ -90,6 +93,88 @@ BOOL isRunningUnderWine() {
     HMODULE hDLL = GetModuleHandle(L"ntdll.dll");
     if (hDLL == NULL) return FALSE;
     if (GetProcAddress(hDLL, "wine_get_version") == NULL) return FALSE; else return TRUE;
+}
+
+/*F+F+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+  Function: setWBEMCodes
+
+  Summary:  Fill map with error code definitions for WBEM codes
+            Based on https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-wmi/a2899649-a5a3-4b13-9ffa-d8394dcdac63
+
+  Args:
+
+  Returns:
+
+-----------------------------------------------------------------F-F*/
+void setWBEMCodes() {
+    g_mWBEM[0x01] = L"WBEM_S_FALSE";
+    g_mWBEM[0x40004] = L"WBEM_S_TIMEDOUT";
+    g_mWBEM[0x400FF] = L"WBEM_S_NEW_STYLE";
+    g_mWBEM[0x40010] = L"WBEM_S_PARTIAL_RESULTS";
+    g_mWBEM[0x80041001] = L"WBEM_E_FAILED";
+    g_mWBEM[0x80041002] = L"WBEM_E_NOT_FOUND";
+    g_mWBEM[0x80041003] = L"WBEM_E_ACCESS_DENIED";
+    g_mWBEM[0x80041004] = L"WBEM_E_PROVIDER_FAILURE";
+    g_mWBEM[0x80041005] = L"WBEM_E_TYPE_MISMATCH";
+    g_mWBEM[0x80041006] = L"WBEM_E_OUT_OF_MEMORY";
+    g_mWBEM[0x80041007] = L"WBEM_E_INVALID_CONTEXT";
+    g_mWBEM[0x80041008] = L"WBEM_E_INVALID_PARAMETER";
+    g_mWBEM[0x80041009] = L"WBEM_E_NOT_AVAILABLE";
+    g_mWBEM[0x8004100a] = L"WBEM_E_CRITICAL_ERROR";
+    g_mWBEM[0x8004100C] = L"WBEM_E_NOT_SUPPORTED";
+    g_mWBEM[0x80041011] = L"WBEM_E_PROVIDER_NOT_FOUND";
+    g_mWBEM[0x80041012] = L"WBEM_E_INVALID_PROVIDER_REGISTRATION";
+    g_mWBEM[0x80041013] = L"WBEM_E_PROVIDER_LOAD_FAILURE";
+    g_mWBEM[0x80041014] = L"WBEM_E_INITIALIZATION_FAILURE";
+    g_mWBEM[0x80041015] = L"WBEM_E_TRANSPORT_FAILURE";
+    g_mWBEM[0x80041016] = L"WBEM_E_INVALID_OPERATION";
+    g_mWBEM[0x80041019] = L"WBEM_E_ALREADY_EXISTS";
+    g_mWBEM[0x8004101d] = L"WBEM_E_UNEXPECTED";
+    g_mWBEM[0x80041020] = L"WBEM_E_INCOMPLETE_CLASS";
+    g_mWBEM[0x80041033] = L"WBEM_E_SHUTTING_DOWN";
+    g_mWBEM[0x80004001] = L"WBEM_E_NOTIMPL";
+    g_mWBEM[0x8004100D] = L"WBEM_E_INVALID_SUPERCLASS";
+    g_mWBEM[0x8004100E] = L"WBEM_E_INVALID_NAMESPACE";
+    g_mWBEM[0x8004100F] = L"WBEM_E_INVALID_OBJECT";
+    g_mWBEM[0x80041010] = L"WBEM_E_INVALID_CLASS";
+    g_mWBEM[0x80041017] = L"WBEM_E_INVALID_QUERY";
+    g_mWBEM[0x80041018] = L"WBEM_E_INVALID_QUERY_TYPE";
+    g_mWBEM[0x80041024] = L"WBEM_E_PROVIDER_NOT_CAPABLE";
+    g_mWBEM[0x80041025] = L"WBEM_E_CLASS_HAS_CHILDREN";
+    g_mWBEM[0x80041026] = L"WBEM_E_CLASS_HAS_INSTANCES";
+    g_mWBEM[0x80041028] = L"WBEM_E_ILLEGAL_NULL";
+    g_mWBEM[0x8004102D] = L"WBEM_E_INVALID_CIM_TYPE";
+    g_mWBEM[0x8004102E] = L"WBEM_E_INVALID_METHOD";
+    g_mWBEM[0x8004102F] = L"WBEM_E_INVALID_METHOD_PARAMETERS";
+    g_mWBEM[0x80041031] = L"WBEM_E_INVALID_PROPERTY";
+    g_mWBEM[0x80041032] = L"WBEM_E_CALL_CANCELLED";
+    g_mWBEM[0x8004103A] = L"WBEM_E_INVALID_OBJECT_PATH";
+    g_mWBEM[0x8004103B] = L"WBEM_E_OUT_OF_DISK_SPACE";
+    g_mWBEM[0x8004103D] = L"WBEM_E_UNSUPPORTED_PUT_EXTENSION";
+    g_mWBEM[0x8004106c] = L"WBEM_E_QUOTA_VIOLATION";
+    g_mWBEM[0x80041045] = L"WBEM_E_SERVER_TOO_BUSY";
+    g_mWBEM[0x80041055] = L"WBEM_E_METHOD_NOT_IMPLEMENTED";
+    g_mWBEM[0x80041056] = L"WBEM_E_METHOD_DISABLED";
+    g_mWBEM[0x80041058] = L"WBEM_E_UNPARSABLE_QUERY";
+    g_mWBEM[0x80041059] = L"WBEM_E_NOT_EVENT_CLASS";
+    g_mWBEM[0x8004105A] = L"WBEM_E_MISSING_GROUP_WITHIN";
+    g_mWBEM[0x8004105B] = L"WBEM_E_MISSING_AGGREGATION_LIST";
+    g_mWBEM[0x8004105c] = L"WBEM_E_PROPERTY_NOT_AN_OBJECT";
+    g_mWBEM[0x8004105d] = L"WBEM_E_AGGREGATING_BY_OBJECT";
+    g_mWBEM[0x80041060] = L"WBEM_E_BACKUP_RESTORE_WINMGMT_RUNNING";
+    g_mWBEM[0x80041061] = L"WBEM_E_QUEUE_OVERFLOW";
+    g_mWBEM[0x80041062] = L"WBEM_E_PRIVILEGE_NOT_HELD";
+    g_mWBEM[0x80041063] = L"WBEM_E_INVALID_OPERATOR";
+    g_mWBEM[0x80041065] = L"WBEM_E_CANNOT_BE_ABSTRACT";
+    g_mWBEM[0x80041066] = L"WBEM_E_AMENDED_OBJECT";
+    g_mWBEM[0x8004107A] = L"WBEM_E_VETO_PUT";
+    g_mWBEM[0x80041081] = L"WBEM_E_PROVIDER_SUSPENDED";
+    g_mWBEM[0x80041087] = L"WBEM_E_ENCRYPTED_CONNECTION_REQUIRED";
+    g_mWBEM[0x80041088] = L"WBEM_E_PROVIDER_TIMED_OUT";
+    g_mWBEM[0x80041089] = L"WBEM_E_NO_KEY";
+    g_mWBEM[0x8004108a] = L"WBEM_E_PROVIDER_DISABLED";
+    g_mWBEM[0x80042001] = L"WBEM_E_REGISTRATION_TOO_BROAD";
+    g_mWBEM[0x80042002] = L"WBEM_E_REGISTRATION_TOO_PRECISE";
 }
 
 /*F+F+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -501,7 +586,7 @@ void setBugCheckCodes() {
 -----------------------------------------------------------------F-F*/
 void setWininetCodes() {
 
-    #define INTERNET_ERROR_BASE 12000
+#define INTERNET_ERROR_BASE 12000
 
     g_mWininet[INTERNET_ERROR_BASE + 1] = L"ERROR_INTERNET_OUT_OF_HANDLES";
     g_mWininet[INTERNET_ERROR_BASE + 2] = L"ERROR_INTERNET_TIMEOUT";
@@ -727,7 +812,7 @@ void setLDAPCodes() {
 /*F+F+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
   Function: setWUCodes
 
-  Summary:  Fill map with error code definitions for Windows Update 
+  Summary:  Fill map with error code definitions for Windows Update
             Based on C:\Program Files (x86)\Windows Kits\10\Include\10.0.26100.0\um\wuerror.h
 
             Q&D:
@@ -1396,8 +1481,11 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
     // Create list of wininet error codes
     setWininetCodes();
 
-    // Startr dialog
-    return (int) DialogBox(hInstance, MAKEINTRESOURCE(IDD_MAIN), NULL, WndProcMainDialog);
+    // Create list of WBEM error codes
+    setWBEMCodes();
+
+    // Start dialog
+    return (int)DialogBox(hInstance, MAKEINTRESOURCE(IDD_MAIN), NULL, WndProcMainDialog);
 }
 
 /*F+F+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -1446,19 +1534,19 @@ LRESULT CALLBACK SignedIntegerHexSubclassProc(
     DWORD_PTR dwRefData)
 {
     switch (uMsg) {
-        case WM_NCDESTROY:
-            RemoveWindowSubclass(hEditControl, SignedIntegerHexSubclassProc, uIdSubclass);
-            break;
-        case WM_CHAR:
-        {
-            wchar_t ch = (wchar_t)wParam;
-            if (ch < L' ') break;                // let control character through
-            else if ((ch == L'-' || ch == L'\x2212') && // hyphen-minus or Unicode minus sign
-                IsAtStartOfEditControl(hEditControl)) break; // at start of edit control is okay
-            else if (wcschr(L"0123456789xabcdefABCDEF", ch)) break;  // let digit/hex through
-            MessageBeep(0);                      // otherwise invalid
-            return 0;
-        }
+    case WM_NCDESTROY:
+        RemoveWindowSubclass(hEditControl, SignedIntegerHexSubclassProc, uIdSubclass);
+        break;
+    case WM_CHAR:
+    {
+        wchar_t ch = (wchar_t)wParam;
+        if (ch < L' ') break;                // let control character through
+        else if ((ch == L'-' || ch == L'\x2212') && // hyphen-minus or Unicode minus sign
+            IsAtStartOfEditControl(hEditControl)) break; // at start of edit control is okay
+        else if (wcschr(L"0123456789xabcdefABCDEF", ch)) break;  // let digit/hex through
+        MessageBeep(0);                      // otherwise invalid
+        return 0;
+    }
     }
 
     return DefSubclassProc(hEditControl, uMsg, wParam, lParam);
@@ -1485,189 +1573,192 @@ INT_PTR CALLBACK WndProcMainDialog(HWND hDlg, UINT message, WPARAM wParam, LPARA
 {
     UNREFERENCED_PARAMETER(lParam);
     switch (message) {
-        case WM_INITDIALOG:
-            {
-                // Set properties for the input edit control
-                HWND hInput = GetDlgItem(hDlg, IDC_INPUT);
-                if (hInput != NULL) {
-                    SetWindowSubclass(hInput, SignedIntegerHexSubclassProc, (WPARAM)0, (LPARAM)0); // Custom subclass callback
-                    SendMessage(hInput, EM_LIMITTEXT, MAXVALUELENTH, 0); // Max chars
-                    SendMessage(hInput, EM_SETCUEBANNER, 0, (LPARAM)LoadStringAsWstr(g_hInst, IDS_INPUTHINT).c_str()); // Textual cue/tip
+    case WM_INITDIALOG:
+    {
+        // Set properties for the input edit control
+        HWND hInput = GetDlgItem(hDlg, IDC_INPUT);
+        if (hInput != NULL) {
+            SetWindowSubclass(hInput, SignedIntegerHexSubclassProc, (WPARAM)0, (LPARAM)0); // Custom subclass callback
+            SendMessage(hInput, EM_LIMITTEXT, MAXVALUELENTH, 0); // Max chars
+            SendMessage(hInput, EM_SETCUEBANNER, 0, (LPARAM)LoadStringAsWstr(g_hInst, IDS_INPUTHINT).c_str()); // Textual cue/tip
 
-                    // Get stored input value from registry
-                    wchar_t szValue[MAXVALUELENTH + 1];
-                    szValue[0] = L'\0';
-                    DWORD valueSize = 0;
-                    DWORD keyType = 0;
-                    // Get size of registry value
-                    if (RegGetValue(HKEY_CURRENT_USER, L"Software\\CodingABI\\TranslateErrorCode", L"LastInput", RRF_RT_REG_SZ, &keyType, NULL, &valueSize) == ERROR_SUCCESS) {
-                        if ((valueSize > 0) && (valueSize <= (MAXVALUELENTH + 2) * sizeof(WCHAR))) { // Size OK?
-                            // Get registry value
-                            valueSize = (MAXVALUELENTH + 1) * sizeof(WCHAR); // Max size incl. termination
-                            if (RegGetValue(HKEY_CURRENT_USER, L"Software\\CodingABI\\TranslateErrorCode", L"LastInput", RRF_RT_REG_SZ | RRF_ZEROONFAILURE, NULL, &szValue, &valueSize) == ERROR_SUCCESS) {
-                                SetWindowText(hInput, szValue); // Set input control value to registry value
-                            }
+            // Get stored input value from registry
+            wchar_t szValue[MAXVALUELENTH + 1];
+            szValue[0] = L'\0';
+            DWORD valueSize = 0;
+            DWORD keyType = 0;
+            // Get size of registry value
+            if (RegGetValue(HKEY_CURRENT_USER, L"Software\\CodingABI\\TranslateErrorCode", L"LastInput", RRF_RT_REG_SZ, &keyType, NULL, &valueSize) == ERROR_SUCCESS) {
+                if ((valueSize > 0) && (valueSize <= (MAXVALUELENTH + 2) * sizeof(WCHAR))) { // Size OK?
+                    // Get registry value
+                    valueSize = (MAXVALUELENTH + 1) * sizeof(WCHAR); // Max size incl. termination
+                    if (RegGetValue(HKEY_CURRENT_USER, L"Software\\CodingABI\\TranslateErrorCode", L"LastInput", RRF_RT_REG_SZ | RRF_ZEROONFAILURE, NULL, &szValue, &valueSize) == ERROR_SUCCESS) {
+                        SetWindowText(hInput, szValue); // Set input control value to registry value
+                    }
+                }
+            }
+        }
+
+        // Create tooltips
+        std::wstring sResource;
+        TOOLINFO ti;
+        ti.cbSize = sizeof(ti);
+        ti.uFlags = TTF_IDISHWND | TTF_SUBCLASS;
+
+        // Add tooltip for button
+        HWND hwndTooltipButton = CreateWindowEx(
+            0,
+            TOOLTIPS_CLASS,
+            L"",
+            TTS_ALWAYSTIP,
+            0, 0, 0, 0,
+            hDlg, 0, g_hInst, 0);
+
+        HWND hButton = GetDlgItem(hDlg, IDC_BUTTONSEARCH);
+        if (hButton != NULL) {
+            ti.uId = (UINT_PTR)hButton;
+            sResource.assign(LoadStringAsWstr(g_hInst, IDS_BUTTONTOOLTIP).c_str());
+            ti.lpszText = const_cast<wchar_t*>(sResource.c_str());
+            SendMessage(hwndTooltipButton, TTM_ADDTOOL, 0, (LPARAM)&ti);
+            if (isRunningUnderWine()) { // Wine has not uft zoom char 🔍 in font
+                SendMessage(hButton, WM_SETTEXT, 0, (LPARAM)L"►");
+            }
+        }
+
+        if (!isRunningUnderWine()) { // Wine has a tooltip/focus-bug for edit controls https://bugs.winehq.org/show_bug.cgi?id=41062
+            // Add tooltip for the input edit control
+            HWND hwndTooltipInput = CreateWindowEx(
+                0,
+                TOOLTIPS_CLASS,
+                L"",
+                TTS_ALWAYSTIP,
+                0, 0, 0, 0,
+                hDlg, 0, g_hInst, 0);
+
+            if (hInput != NULL) {
+                ti.uId = (UINT_PTR)hInput;
+                sResource.assign(LoadStringAsWstr(g_hInst, IDS_INPUTTOOLTIP).c_str());
+                ti.lpszText = const_cast<wchar_t*>(sResource.c_str());
+                SendMessage(hwndTooltipInput, TTM_ADDTOOL, 0, (LPARAM)&ti);
+            }
+        }
+        break;
+    }
+    case WM_CTLCOLORSTATIC:
+    {
+        // Change Textcolor/Background for output
+        if ((HWND)lParam == GetDlgItem(hDlg, IDC_OUTPUT)) {
+            HDC hdcStatic = (HDC)wParam;
+            SetTextColor(hdcStatic, RGB(255, 255, 255));
+            SetBkColor(hdcStatic, RGB(0, 116, 129)); // Background of used lines
+            if (g_hbrOutputBackground == NULL) {
+                g_hbrOutputBackground = CreateSolidBrush(RGB(0, 116, 129));
+            }
+            return (INT_PTR)g_hbrOutputBackground;
+        }
+        break;
+    }
+    case WM_DESTROY:
+        if (g_hbrOutputBackground != NULL) {
+            DeleteObject(g_hbrOutputBackground);
+            g_hbrOutputBackground = NULL;
+        }
+        break;
+    case WM_COMMAND:
+        switch (LOWORD(wParam)) {
+        case IDCANCEL: // End dialog on window close or ESC
+            EndDialog(hDlg, LOWORD(wParam));
+            return (INT_PTR)TRUE;
+        case IDOK: // Start translation on button press or ENTER
+        case IDC_BUTTONSEARCH: {
+            HWND hInput = GetDlgItem(hDlg, IDC_INPUT);
+            if (hInput != NULL) {
+                wchar_t szValue[MAXVALUELENTH + 1];
+                GetWindowText(hInput, szValue, MAXVALUELENTH + 1); // Get value from input edit control
+                int iValue = 0;
+                if (StrToIntEx(szValue, STIF_SUPPORT_HEX, &iValue)) {
+                    // Store input in registry
+                    RegSetKeyValue(HKEY_CURRENT_USER, L"Software\\CodingABI\\TranslateErrorCode", L"LastInput", REG_SZ, szValue, (DWORD)(wcslen(szValue) + 1) * sizeof(WCHAR));
+#define _MAX_ITOSTR_BASE16_COUNT (8 + 1) // Char length for DWORD to hex conversion
+                    wchar_t szHex[_MAX_ITOSTR_BASE16_COUNT + 2];
+                    std::wstring sMessage = L"";
+                    LPWSTR messageBuffer = nullptr;
+                    // Convert error to hex
+                    _snwprintf_s(szHex, _MAX_ITOSTR_BASE16_COUNT + 2, _TRUNCATE, L"0x%08X", iValue);
+                    // Numeric values
+                    sMessage = std::wstring(L"DWORD \t").append(std::to_wstring((DWORD)iValue)).append(L"\r\n")
+                        .append(L"int \t").append(std::to_wstring((int)iValue)).append(L"\r\n")
+                        .append(L"Hex \t").append(szHex);
+                    size_t size;
+
+                    // Get message for Win32/HRESULT
+                    size = FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
+                        NULL, iValue, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPWSTR)&messageBuffer, 0, NULL);
+                    if (size > 0) { // Append text from FormatMessage function, when error code was found in this function
+                        StrTrim(messageBuffer, L"\n");
+                        sMessage.append(L"\r\n\r\nWin32/HRESULT: ").append(messageBuffer);
+                    }
+                    LocalFree(messageBuffer);
+
+                    // Get message for NTSTATUS
+                    HMODULE hDLL = GetModuleHandle(L"ntdll.dll");
+                    if (hDLL != NULL) {
+                        size = FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_HMODULE | FORMAT_MESSAGE_IGNORE_INSERTS,
+                            GetModuleHandle(L"ntdll.dll"), iValue, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPWSTR)&messageBuffer, 0, NULL);
+                        if (size > 0) { // Append text from FormatMessage function, when error code was found in this function
+                            StrTrim(messageBuffer, L"\r\n");
+                            sMessage.append(L"\r\n\r\nNTSTATUS: ").append(messageBuffer);
                         }
                     }
-                }
+                    LocalFree(messageBuffer);
 
-                // Create tooltips
-                std::wstring sResource;
-                TOOLINFO ti;
-                ti.cbSize = sizeof(ti);
-                ti.uFlags = TTF_IDISHWND | TTF_SUBCLASS;
-
-                // Add tooltip for button
-                HWND hwndTooltipButton = CreateWindowEx(
-                    0,
-                    TOOLTIPS_CLASS,
-                    L"",
-                    TTS_ALWAYSTIP,
-                    0, 0, 0, 0,
-                    hDlg, 0, g_hInst, 0);
-
-                HWND hButton = GetDlgItem(hDlg, IDC_BUTTONSEARCH);
-                if (hButton != NULL) {
-                    ti.uId = (UINT_PTR)hButton;
-                    sResource.assign(LoadStringAsWstr(g_hInst, IDS_BUTTONTOOLTIP).c_str());
-                    ti.lpszText = const_cast<wchar_t*>(sResource.c_str());
-                    SendMessage(hwndTooltipButton, TTM_ADDTOOL, 0, (LPARAM)&ti);
-                    if (isRunningUnderWine()) { // Wine has not uft zoom char 🔍 in font
-                        SendMessage(hButton, WM_SETTEXT, 0, (LPARAM)L"►");
+                    // Get message for windows update
+                    if (g_mWU.count(iValue) > 0) { // Append text from windows update message, when error code was found in the messages
+                        sMessage.append(L"\r\n\r\nWU: ").append(g_mWU[iValue]);
                     }
-                }
-
-                if (!isRunningUnderWine()) { // Wine has a tooltip/focus-bug for edit controls https://bugs.winehq.org/show_bug.cgi?id=41062
-                    // Add tooltip for the input edit control
-                    HWND hwndTooltipInput = CreateWindowEx(
-                        0,
-                        TOOLTIPS_CLASS,
-                        L"",
-                        TTS_ALWAYSTIP,
-                        0, 0, 0, 0,
-                        hDlg, 0, g_hInst, 0);
-
-                    if (hInput != NULL) {
-                        ti.uId = (UINT_PTR)hInput;
-                        sResource.assign(LoadStringAsWstr(g_hInst, IDS_INPUTTOOLTIP).c_str());
-                        ti.lpszText = const_cast<wchar_t*>(sResource.c_str());
-                        SendMessage(hwndTooltipInput, TTM_ADDTOOL, 0, (LPARAM)&ti);
+                    // Get message for LDAP
+                    if (g_mLDAP.count(iValue) > 0) { // Append text from LDAP message, when error code was found in the messages
+                        sMessage.append(L"\r\n\r\nLDAP: ").append(g_mLDAP[iValue]);
                     }
-                }
-                break;
-            }
-        case WM_CTLCOLORSTATIC:
-            {
-                // Change Textcolor/Background for output
-                if ((HWND)lParam == GetDlgItem(hDlg, IDC_OUTPUT)) {
-                    HDC hdcStatic = (HDC)wParam;
-                    SetTextColor(hdcStatic, RGB(255, 255, 255));
-                    SetBkColor(hdcStatic, RGB(0,116,129)); // Background of used lines
-                    if (g_hbrOutputBackground == NULL) {
-                        g_hbrOutputBackground = CreateSolidBrush(RGB(0, 116, 129));
+                    // Get message for stop codes
+                    if (g_mBugCheck.count(iValue) > 0) { // Append text from BugCheck message, when error code was found in the messages
+                        sMessage.append(L"\r\n\r\nStopCode/BugCheck: ").append(g_mBugCheck[iValue]);
                     }
-                    return (INT_PTR)g_hbrOutputBackground;
-                }
-                break;
-            }
-        case WM_DESTROY:
-            if (g_hbrOutputBackground != NULL) {
-                DeleteObject(g_hbrOutputBackground);
-                g_hbrOutputBackground = NULL;
-            }
-            break;
-        case WM_COMMAND:
-            switch (LOWORD(wParam)) {
-                case IDCANCEL: // End dialog on window close or ESC
-                    EndDialog(hDlg, LOWORD(wParam));
-                    return (INT_PTR)TRUE;
-                case IDOK: // Start translation on button press or ENTER
-                case IDC_BUTTONSEARCH: {
-                    HWND hInput = GetDlgItem(hDlg, IDC_INPUT);
-                    if (hInput != NULL) {
-                        wchar_t szValue[MAXVALUELENTH + 1];
-                        GetWindowText(hInput, szValue, MAXVALUELENTH + 1); // Get value from input edit control
-                        int iValue = 0;
-                        if (StrToIntEx(szValue, STIF_SUPPORT_HEX, &iValue)) {
-                            // Store input in registry
-                            RegSetKeyValue(HKEY_CURRENT_USER, L"Software\\CodingABI\\TranslateErrorCode", L"LastInput", REG_SZ, szValue, (DWORD) (wcslen(szValue) + 1)*sizeof(WCHAR));
-                            #define _MAX_ITOSTR_BASE16_COUNT (8 + 1) // Char length for DWORD to hex conversion
-                            wchar_t szHex[_MAX_ITOSTR_BASE16_COUNT + 2];
-                            std::wstring sMessage = L"";
-                            LPWSTR messageBuffer = nullptr;
-                            // Convert error to hex
-                            _snwprintf_s(szHex, _MAX_ITOSTR_BASE16_COUNT + 2, _TRUNCATE, L"0x%08X", iValue);
-                            // Numeric values
-                            sMessage = std::wstring(L"DWORD \t").append(std::to_wstring((DWORD)iValue)).append(L"\r\n")
-                                .append(L"int \t").append(std::to_wstring((int)iValue)).append(L"\r\n")
-                                .append(L"Hex \t").append(szHex);
-                            size_t size;
-
-                            // Get message for Win32/HRESULT
-                            size = FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
-                                NULL, iValue, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPWSTR)&messageBuffer, 0, NULL);
-                            if (size > 0) { // Append text from FormatMessage function, when error code was found in this function
-                                StrTrim(messageBuffer, L"\n");
-                                sMessage.append(L"\r\n\r\nWin32/HRESULT: ").append(messageBuffer);
-                            }
-                            LocalFree(messageBuffer);
-
-                            // Get message for NTSTATUS
-                            HMODULE hDLL = GetModuleHandle(L"ntdll.dll");
-                            if (hDLL != NULL) {
-                                size = FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_HMODULE | FORMAT_MESSAGE_IGNORE_INSERTS,
-                                    GetModuleHandle(L"ntdll.dll"), iValue, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPWSTR)&messageBuffer, 0, NULL);
-                                if (size > 0) { // Append text from FormatMessage function, when error code was found in this function
-                                    StrTrim(messageBuffer, L"\r\n");
-                                    sMessage.append(L"\r\n\r\nNTSTATUS: ").append(messageBuffer);
-                                }
-                            }
-                            LocalFree(messageBuffer);
-
-                            // Get message for windows update
-                            if (g_mWU.count(iValue) > 0) { // Append text from windows update message, when error code was found in the messages
-                                sMessage.append(L"\r\n\r\nWU: ").append(g_mWU[iValue]);
-                            }
-                            // Get message for LDAP
-                            if (g_mLDAP.count(iValue) > 0) { // Append text from LDAP message, when error code was found in the messages
-                                sMessage.append(L"\r\n\r\nLDAP: ").append(g_mLDAP[iValue]);
-                            }
-                            // Get message for stop codes
-                            if (g_mBugCheck.count(iValue) > 0) { // Append text from BugCheck message, when error code was found in the messages
-                                sMessage.append(L"\r\n\r\nStopCode/BugCheck: ").append(g_mBugCheck[iValue]);
-                            }
-                            // Get message for wininet codes
-                            if (g_mWininet.count(iValue) > 0) { // Append text from wininet message, when error code was found in the messages
-                                sMessage.append(L"\r\n\r\nWininet: ").append(g_mWininet[iValue]);
-                            }
-                            // Sometimes with an offset of 0x80070000
-                            if ((iValue > 0x80070000) && (g_mWininet.count(iValue - 0x80070000) > 0)) { // Append text from wininet message, when error code was found in the messages
-                                sMessage.append(L"\r\n\r\nWininet: ").append(g_mWininet[iValue - 0x80070000]);
-                            }
-
-                            HWND hOutput = GetDlgItem(hDlg, IDC_OUTPUT);
-                            if (hOutput != NULL) {
-                                SetWindowText(hOutput, sMessage.c_str()); // Set output text
-                            }
-                        }
+                    // Get message for wininet codes
+                    if (g_mWininet.count(iValue) > 0) { // Append text from wininet message, when error code was found in the messages
+                        sMessage.append(L"\r\n\r\nWininet: ").append(g_mWininet[iValue]);
                     }
-                    break;
+                    // Sometimes with an offset of 0x80070000
+                    if ((iValue > 0x80070000) && (g_mWininet.count(iValue - 0x80070000) > 0)) { // Append text from wininet message, when error code was found in the messages
+                        sMessage.append(L"\r\n\r\nWininet: ").append(g_mWininet[iValue - 0x80070000]);
+                    }
+                    // Get message for WBEM codes
+                    if (g_mWBEM.count(iValue) > 0) { // Append text from WBEM message, when error code was found in the messages
+                        sMessage.append(L"\r\n\r\nWBEM: ").append(g_mWBEM[iValue]);
+                    }
+                    HWND hOutput = GetDlgItem(hDlg, IDC_OUTPUT);
+                    if (hOutput != NULL) {
+                        SetWindowText(hOutput, sMessage.c_str()); // Set output text
+                    }
                 }
             }
             break;
-        case WM_NOTIFY :
-            switch (((LPNMHDR)lParam)->code) {
-                case NM_CLICK:          // Fall through to the next case.
-                case NM_RETURN: {
-                        // Open github link
-                        PNMLINK pNMLink = (PNMLINK)lParam;
-                        LITEM   item = pNMLink->item;
+        }
+        }
+        break;
+    case WM_NOTIFY:
+        switch (((LPNMHDR)lParam)->code) {
+        case NM_CLICK:          // Fall through to the next case.
+        case NM_RETURN: {
+            // Open github link
+            PNMLINK pNMLink = (PNMLINK)lParam;
+            LITEM   item = pNMLink->item;
 
-                        if ((((LPNMHDR)lParam)->hwndFrom == GetDlgItem(hDlg, IDC_GITHUBLINK))) ShellExecute(NULL, L"open", item.szUrl, NULL, NULL, SW_SHOW);
-                        break;
-                    }
-            }
+            if ((((LPNMHDR)lParam)->hwndFrom == GetDlgItem(hDlg, IDC_GITHUBLINK))) ShellExecute(NULL, L"open", item.szUrl, NULL, NULL, SW_SHOW);
             break;
+        }
+        }
+        break;
     }
     return (INT_PTR)FALSE;
 }
