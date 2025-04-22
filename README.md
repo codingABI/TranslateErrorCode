@@ -13,7 +13,7 @@ It supports error codes from
 ![Screenshot of main window](assets/images/TranslateErrorCode.png)
 
 ## License and copyright
-This project is licensed under the terms of the CC0 [Copyright (c) 2024 codingABI](LICENSE). 
+This project is licensed under the terms of the CC0 [Copyright (c) 2024-2025 codingABI](LICENSE). 
 
 - Icon for the app: Modified icon "zoom" from Game icon pack by Kenney Vleugels (www.kenney.nl), https://kenney.nl/assets/game-icons, CC0
 - Special callback function for the input edit control: Raymond Chen, https://devblogs.microsoft.com/oldnewthing/20190222-00/?p=101064
